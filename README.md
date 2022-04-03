@@ -47,9 +47,9 @@ The project includes **pre-commit hook** that runs eslint and prettier to check 
 
 1.  Stop the project:
 
-        ```sh
-        docker-compose stop
-        ```
+    ```sh
+    docker-compose stop
+    ```
 
 2.  Project stopped.
 
