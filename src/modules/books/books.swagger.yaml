@@ -1,0 +1,156 @@
+/books/:
+    get:
+        tags: [Books]
+        summary: Get a list of Books
+        description: Get a list of Books
+        parameters:
+            - in: query
+              name: offset
+              schema:
+                  type: number
+                  default: 0
+            - in: query
+              name: limit
+              schema:
+                  type: number
+                  default: 10
+            - in: query
+              name: sortBy
+              schema:
+                  type: string
+                  enum: ['title', 'author', 'genre', 'year']
+                  default: 'date'
+            - in: query
+              name: orderBy
+              schema:
+                  type: string
+                  enum: ['asc', 'desc']
+                  default: 'asc'
+            - in: query
+              name: search
+              schema:
+                  type: string
+                  default: ''
+        responses:
+            200:
+                description: A list of Books
+    post:
+        tags: [Books]
+        summary: Create a new Book
+        description: Create a new Book
+        requestBody:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            title:
+                                type: string
+                                required: true
+                                example: 'A Brief History of Time'
+                                description: Book title
+                            author:
+                                type: string
+                                required: true
+                                example: 'Stephen Hawking'
+                                description: Author of the book
+                            genre:
+                                type: string
+                                required: true
+                                enum:
+                                    [
+                                        'MYSTERY',
+                                        'THRILLER',
+                                        'HORROR',
+                                        'HISTORICAL',
+                                        'ROMANCE',
+                                        'WESTERN',
+                                        'POPULAR_SCIENCE',
+                                    ]
+                                example: 'POPULAR_SCIENCE'
+                                description: Book genre
+                            year:
+                                type: number
+                                required: true
+                                example: 1988
+                                description: Year of book publishing
+        responses:
+            201:
+                description: A new Book
+
+/books/{id}:
+    get:
+        tags: [Books]
+        summary: Get a Book by id
+        description: Get a Book by id
+        parameters:
+            - in: path
+              name: id
+              required: true
+              schema:
+                  type: string
+        responses:
+            200:
+                description: Book
+    patch:
+        tags: [Books]
+        summary: Update a Book
+        description: Update a Book
+        parameters:
+            - in: path
+              name: id
+              required: true
+              schema:
+                  type: string
+        requestBody:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            title:
+                                type: string
+                                required: true
+                                example: 'A Brief History of Time'
+                                description: Book title
+                            author:
+                                type: string
+                                required: true
+                                example: 'Stephen Hawking'
+                                description: Author of the book
+                            genre:
+                                type: string
+                                required: true
+                                enum:
+                                    [
+                                        'MYSTERY',
+                                        'THRILLER',
+                                        'HORROR',
+                                        'HISTORICAL',
+                                        'ROMANCE',
+                                        'WESTERN',
+                                        'POPULAR_SCIENCE',
+                                    ]
+                                example: 'POPULAR_SCIENCE'
+                                description: Book genre
+                            year:
+                                type: number
+                                required: true
+                                example: 1988
+                                description: Year of book publishing
+        responses:
+            200:
+                description: Book
+    delete:
+        tags: [Books]
+        summary: Delete a Book
+        description: Delete a Book
+        parameters:
+            - in: path
+              name: id
+              required: true
+              schema:
+                  type: string
+        responses:
+            200:
+                description: Book
