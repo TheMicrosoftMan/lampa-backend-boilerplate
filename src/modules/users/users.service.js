@@ -1,7 +1,7 @@
-const UserModel = require('./users.model');
+const usersRepository = require('./users.repository');
 
 async function findAll() {
-	const users = await UserModel.find({}, { password: 0 });
+	const users = await usersRepository.findAll();
 
 	return users;
 }

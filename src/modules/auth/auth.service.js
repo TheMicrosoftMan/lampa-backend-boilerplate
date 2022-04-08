@@ -2,14 +2,14 @@ const { Types } = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const AuthModel = require('./auth.model');
-const UsersModel = require('../users/users.model');
+const authRepository = require('./auth.repository');
+const usersRepository = require('../users/users.repository');
 
 const config = require('../../config');
 const createError = require('http-errors');
 
 async function login(loginData) {
-	const user = await UsersModel.findOne({
+	const user = await usersRepository.findOne({
 		email: loginData.email,
 	});
 
@@ -30,7 +30,7 @@ async function login(loginData) {
 		id: user._id,
 	});
 
-	await AuthModel.create({
+	await authRepository.create({
 		user: user._id,
 		refreshToken,
 	});
@@ -42,7 +42,7 @@ async function login(loginData) {
 }
 
 async function register(registerData) {
-	const isUserExists = await UsersModel.exists({
+	const isUserExists = await usersRepository.isExists({
 		email: registerData.email,
 	});
 
@@ -53,7 +53,7 @@ async function register(registerData) {
 	const saltRounds = 10;
 	const passwordHash = bcrypt.hashSync(registerData.password, saltRounds);
 
-	const createdUser = await UsersModel.create({
+	const createdUser = await usersRepository.create({
 		email: registerData.email,
 		password: passwordHash,
 	});
@@ -62,7 +62,7 @@ async function register(registerData) {
 		id: createdUser._id,
 	});
 
-	await AuthModel.create({
+	await authRepository.create({
 		user: createdUser._id,
 		refreshToken,
 	});
@@ -73,13 +73,16 @@ async function register(registerData) {
 	};
 }
 
-async function refreshToken(refreshTokenData, userId) {
+async function refreshToken(refreshTokenData) {
 	const { accessToken, refreshToken } = generateJWT({
-		id: userId,
+		id: refreshTokenData.userId,
 	});
 
-	const auth = await AuthModel.findOneAndUpdate(
-		{ user: new Types.ObjectId(userId) },
+	const auth = await authRepository.update(
+		{
+			user: new Types.ObjectId(refreshTokenData.userId),
+			refreshToken: refreshTokenData.refreshToken,
+		},
 		{ $set: { refreshToken: refreshToken } },
 	);
 
@@ -94,7 +97,7 @@ async function refreshToken(refreshTokenData, userId) {
 }
 
 async function logout(userId) {
-	await AuthModel.findOneAndRemove({
+	await authRepository.remove({
 		user: new Types.ObjectId(userId),
 	});
 

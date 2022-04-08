@@ -1,4 +1,6 @@
-const BookModel = require('./books.model');
+const createError = require('http-errors');
+
+const booksRepository = require('./books.repository');
 
 async function findAll(filter = {}, queryParams) {
 	if (queryParams.search) {
@@ -8,63 +10,45 @@ async function findAll(filter = {}, queryParams) {
 		};
 	}
 
-	const aggregationPipeline = [
-		{
-			$match: filter,
-		},
-		{
-			$facet: {
-				items: [
-					{
-						$sort: queryParams.sort,
-					},
-					{
-						$skip: queryParams.offset,
-					},
-					{
-						$limit: queryParams.limit,
-					},
-				],
-				count: [
-					{
-						$count: 'count',
-					},
-				],
-			},
-		},
-	];
-	const aggregationResult = await BookModel.aggregate(aggregationPipeline);
+	const { items, count } = await booksRepository.findAll(filter, queryParams);
 
-	const books = aggregationResult[0].items;
-	const count = aggregationResult[0].count.length
-		? aggregationResult[0].count[0].count
-		: 0;
-
-	return { items: books, count };
+	return { items, count };
 }
 
 async function findOne(id) {
-	const book = await BookModel.findById(id);
+	const book = await booksRepository.findOne(id);
+
+	if (!book) {
+		throw createError.NotFound();
+	}
 
 	return book;
 }
 
 async function create(userData) {
-	const createdBook = await BookModel.create(userData);
+	const createdBook = await booksRepository.create(userData);
 
 	return createdBook;
 }
 
 async function update(id, userData) {
-	const updatedBook = await BookModel.findByIdAndUpdate(id, userData, {
+	const updatedBook = await booksRepository.update(id, userData, {
 		new: true,
 	});
+
+	if (!updatedBook) {
+		throw createError.NotFound();
+	}
 
 	return updatedBook;
 }
 
 async function remove(id) {
-	const removedBook = await BookModel.findByIdAndRemove(id);
+	const removedBook = await booksRepository.remove(id);
+
+	if (!removedBook) {
+		throw createError.NotFound();
+	}
 
 	return removedBook;
 }
